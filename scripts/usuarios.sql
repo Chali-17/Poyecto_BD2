@@ -1,0 +1,30 @@
+-- Crear la base de datos bdRestaurante
+CREATE DATABASE bdRestaurante;
+
+--CREACION DE LOS LOGIN
+USE bdRestaurante;
+CREATE LOGIN adminRes WITH PASSWORD = 'admin1234';
+CREATE LOGIN camarero WITH PASSWORD = 'cam1234';
+CREATE LOGIN cajero WITH PASSWORD = 'caj1234';
+CREATE LOGIN cocina WITH PASSWORD = 'cocina';
+
+--CREACION DE LOS USUARIOS 
+USE bdRestaurante;
+CREATE USER adminRes FOR LOGIN adminRes;
+CREATE USER camarero FOR LOGIN camarero;
+CREATE USER cajero FOR LOGIN cajero;
+CREATE USER cocina FOR LOGIN cocina;
+
+--SE ASIGNAN PERMISOS PARA CONECTARSE
+USE bdRestaurante;
+GRANT CONNECT TO adminRes;
+GRANT CONNECT TO camarero;
+GRANT CONNECT TO cajero;
+GRANT CONNECT TO cocina;
+
+--SE ESTABLECE LA BASE DE DATOS A LA CUAL SE CONECTAN
+USE bdRestaurante;
+ALTER LOGIN adminRes WITH DEFAULT_DATABASE = bdRestaurante;
+ALTER LOGIN camarero WITH DEFAULT_DATABASE = bdRestaurante;
+ALTER LOGIN cajero WITH DEFAULT_DATABASE = bdRestaurante;
+ALTER LOGIN cocina WITH DEFAULT_DATABASE = bdRestaurante;

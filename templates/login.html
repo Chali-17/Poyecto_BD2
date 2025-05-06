@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Restaurant System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login</h1>
+        <form method="POST" action="{{ url_for('login') }}">
+            <select name="role" class="input-field">
+                <option value="">Seleccionar Rol</option>
+                <option value="adminRes">Administrador</option>
+                <option value="camarero">Camarero</option>
+                <option value="cajero">Cajero</option>
+                <option value="cocina">Cocina</option>
+            </select>
+            <input type="text" name="username" placeholder="Usuario" class="input-field">
+            <input type="password" name="password" placeholder="Contraseña" class="input-field">
+            <button type="submit" class="login-button">Ingresar</button>
+        </form>
+    </div>
+
+    <!-- Add this modal HTML -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Error de Acceso</h2>
+            <p id="modalMessage">{{ error_message }}</p>
+        </div>
+    </div>
+
+    <!-- Add this script -->
+    <script>
+        // Check if error message exists using a separate variable
+        var errorMessage = "{{ error_message }}";
+        if (errorMessage) {
+            document.getElementById('errorModal').style.display = 'block';
+        }
+
+        // Get the modal close button
+        var span = document.getElementsByClassName("close")[0];
+        span.onclick = function() {
+            document.getElementById('errorModal').style.display = "none";
+        }
+    </script>
+</body>
+</html>
