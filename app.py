@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import pyodbc
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Needed for flash messages
+app.secret_key = '16'  # Needed for flash messages
 
 # Database connection configuration
 DB_CONFIG = {
@@ -21,6 +21,10 @@ def login():
         role = request.form.get('role')
         username = request.form.get('username')
         password = request.form.get('password')
+
+        # Validate that all fields are filled
+        if not role or not username or not password:
+            return render_template('login.html', error_message='Todos los campos son obligatorios')
 
         try:
             # Try to establish connection with provided credentials
