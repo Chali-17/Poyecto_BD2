@@ -3,15 +3,53 @@
 {% block title %}Admin Panel{% endblock %}
 
 {% block nav_links %}
-    <a href="#" class="nav-link">Gestionar Usuarios</a>
-    <a href="#" class="nav-link">Reportes</a>
-    <a href="#" class="nav-link">Configuración</a>
-    <a href="#" class="nav-link">Inventario</a>
+<!--<a href="#usuarios" class="nav-link">Gestionar Usuarios</a>
+<a href="#reportes" class="nav-link">Reportes</a>
+<a href="#configuracion" class="nav-link">Configuración</a>
+<a href="#inventario" class="nav-link">Inventario</a>-->
+<a href="#mesas" class="nav-link">Mesas</a>
+<a href="#productos" class="nav-link">Productos</a>
+<a href="#categorias" class="nav-link">Categorias</a>
 {% endblock %}
 
 {% block content %}
     <h1>Panel de Administración</h1>
     <div class="dashboard">
-        <!-- Content here -->
+
+        <section id="usuarios">
+            <h2>Gestionar Usuarios</h2>
+            <!-- Contenido de usuarios -->
+        </section>
+
+        <section id="reportes">
+            <h2>Reportes</h2>
+            <!-- Contenido de reportes -->
+        </section>
+
+        <section id="configuracion">
+            <h2>Configuración</h2>
+            <!-- Contenido de configuración -->
+        </section>
+
+        <section id="inventario">
+            <h2>Inventario</h2>
+            <!-- Contenido de inventario -->
+        </section>
+
+        <section id="mesas">
+            <h2>Mesas</h2>
+            <!-- Contenido de mesas -->
+        </section>
+
+        <section id="productos">
+            <h2>Productos</h2>
+            <!-- Contenido de productos -->
+        </section>
+
+        <section id="categorias">
+            <h2>Categorías</h2>
+            <!-- Contenido de categorías -->
+        </section>
+
     </div>
 {% endblock %}
