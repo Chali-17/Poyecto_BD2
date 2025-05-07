@@ -48,11 +48,12 @@ CREATE TABLE [Mesas] (
 GO
 
 CREATE TABLE [Auditoria] (
-  [id] integer PRIMARY KEY,
+  [id] integer IDENTITY(1,1) PRIMARY KEY,
   [UsuarioSys] nvarchar(255) NOT NULL,
   [accion] nvarchar(255),
-  [fecha] timestamp
+  [fecha] datetime DEFAULT GETDATE()
 )
+
 GO
 
 ALTER TABLE [Pedidos] ADD CONSTRAINT [pedido_mesa] FOREIGN KEY ([mesa_id]) REFERENCES [Mesas] ([id])
@@ -69,3 +70,12 @@ GO
 
 ALTER TABLE [Pagos] ADD CONSTRAINT [pago_pedido] FOREIGN KEY ([pedido_id]) REFERENCES [Pedidos] ([id])
 GO
+
+
+USE bdRestaurante;
+-- Dar permisos para ejecutar los procedimientos almacenados
+GRANT EXECUTE ON inicioSesion TO adminRes, camarero, cajero, cocina;
+GRANT EXECUTE ON cerrarSesion TO adminRes, camarero, cajero, cocina;
+
+-- Dar permisos para insertar en la tabla Auditoria
+GRANT INSERT ON Auditoria TO adminRes, camarero, cajero, cocina;
