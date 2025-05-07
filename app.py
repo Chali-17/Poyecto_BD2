@@ -29,24 +29,61 @@ def login():
         try:
             # Try to establish connection with provided credentials
             conn = get_db_connection(username, password)
-            
-            # If connection successful, verify if username matches the selected role
             cursor = conn.cursor()
-            cursor.execute(f"SELECT name FROM sys.database_principals WHERE name = '{role}'")
+            
+            # Verify if username matches the selected role
+            cursor.execute("SELECT name FROM sys.database_principals WHERE name = ?", (role,))
             user_role = cursor.fetchone()
             
-            cursor.close()
-            conn.close()
-            
             if user_role:
-                return redirect(url_for(f'{role}_home'))
+                try:
+                    # Guardar información en la sesión
+                    session['user_role'] = role
+                    session['username'] = username
+                    session['password'] = password
+                    
+                    # Ejecutar el procedimiento almacenado
+                    cursor.execute("EXEC inicioSesion @Usuario = ?", (username,))
+                    conn.commit()
+                    
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for(f'{role}_home'))
+                except Exception as e:
+                    print(f"Error al registrar inicio de sesión: {str(e)}")
+                    cursor.close()
+                    conn.close()
+                    return render_template('login.html', error_message='Error al registrar inicio de sesión')
             else:
+                cursor.close()
+                conn.close()
                 return render_template('login.html', error_message='Rol seleccionado no válido')
                 
         except Exception as e:
+            print(f"Error de conexión: {str(e)}")
             return render_template('login.html', error_message='Usuario o contraseña incorrectos')
 
     return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    try:
+        if 'username' in session and 'password' in session:
+            # Usar las credenciales almacenadas en la sesión
+            conn = get_db_connection(session['username'], session['password'])
+            cursor = conn.cursor()
+            
+            # Ejecutar el procedimiento almacenado de cierre de sesión
+            cursor.execute("EXEC cerrarSesion @Usuario = ?", session['username'])
+            conn.commit()
+            
+            cursor.close()
+            conn.close()
+    except Exception as e:
+        print(f"Error al registrar logout: {e}")
+    
+    session.clear()
+    return redirect(url_for('login'))
 
 # Route handlers for different role homepages
 @app.route('/admin')
@@ -64,11 +101,6 @@ def cajero_home():
 @app.route('/cocina')
 def cocina_home():
     return render_template('cocina_home.html')
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
