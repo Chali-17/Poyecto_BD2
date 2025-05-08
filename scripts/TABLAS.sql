@@ -1,59 +1,58 @@
 CREATE TABLE [Pedidos] (
-  [id] integer PRIMARY KEY,
-  [UsuarioSys] nvarchar(255) NOT NULL,
-  [mesa_id] integer NOT NULL,
-  [fecha_pedido] timestamp,
-  [estado] nvarchar(255)
+  [id] INTEGER IDENTITY(1,1) PRIMARY KEY,
+  [UsuarioSys] NVARCHAR(255) NOT NULL,
+  [mesa_id] INTEGER NOT NULL,
+  [fecha_pedido] TIMESTAMP,
+  [estado] NVARCHAR(255)
 )
 GO
 
 CREATE TABLE [Productos] (
-  [id] integer PRIMARY KEY,
-  [nombre] nvarchar(255),
-  [precio] decimal(10,2),
-  [categoria_id] integer NOT NULL
+  [id] INTEGER IDENTITY(1,1) PRIMARY KEY,
+  [nombre] NVARCHAR(255),
+  [precio] DECIMAL(10,2),
+  [categoria_id] INTEGER NOT NULL
 )
 GO
 
 CREATE TABLE [Categoria] (
-  [id] integer PRIMARY KEY,
-  [nombre] nvarchar(255)
+  [id] INTEGER IDENTITY(1,1) PRIMARY KEY,
+  [nombre] NVARCHAR(255)
 )
 GO
 
 CREATE TABLE [Detalle_Pedidos] (
-  [id] integer PRIMARY KEY,
-  [pedido_id] integer NOT NULL,
-  [producto_id] integer NOT NULL,
-  [cantidad] integer,
-  [subtotal] decimal(10,2)
+  [id] INTEGER IDENTITY(1,1) PRIMARY KEY,
+  [pedido_id] INTEGER NOT NULL,
+  [producto_id] INTEGER NOT NULL,
+  [cantidad] INTEGER,
+  [subtotal] DECIMAL(10,2)
 )
 GO
 
 CREATE TABLE [Pagos] (
-  [id] integer PRIMARY KEY,
-  [pedido_id] integer NOT NULL,
-  [UsuarioSys] nvarchar(255) NOT NULL,
-  [monto] decimal(10,2),
-  [metodo_pago] nvarchar(255),
-  [fecha_pago] timestamp
+  [id] INTEGER IDENTITY(1,1) PRIMARY KEY,
+  [pedido_id] INTEGER NOT NULL,
+  [UsuarioSys] NVARCHAR(255) NOT NULL,
+  [monto] DECIMAL(10,2),
+  [metodo_pago] NVARCHAR(255),
+  [fecha_pago] TIMESTAMP
 )
 GO
 
 CREATE TABLE [Mesas] (
-  [id] integer PRIMARY KEY,
-  [numero_mesa] integer NOT NULL,
-  [estado] nvarchar(255)
+  [id] INTEGER IDENTITY(1,1) PRIMARY KEY,
+  [numero_mesa] INTEGER NOT NULL,
+  [estado] NVARCHAR(255)
 )
 GO
 
 CREATE TABLE [Auditoria] (
-  [id] integer IDENTITY(1,1) PRIMARY KEY,
-  [UsuarioSys] nvarchar(255) NOT NULL,
-  [accion] nvarchar(255),
-  [fecha] datetime DEFAULT GETDATE()
+  [id] INTEGER IDENTITY(1,1) PRIMARY KEY,
+  [UsuarioSys] NVARCHAR(255) NOT NULL,
+  [accion] NVARCHAR(255),
+  [fecha] DATETIME DEFAULT GETDATE()
 )
-
 GO
 
 ALTER TABLE [Pedidos] ADD CONSTRAINT [pedido_mesa] FOREIGN KEY ([mesa_id]) REFERENCES [Mesas] ([id])
@@ -70,6 +69,7 @@ GO
 
 ALTER TABLE [Pagos] ADD CONSTRAINT [pago_pedido] FOREIGN KEY ([pedido_id]) REFERENCES [Pedidos] ([id])
 GO
+
 
 
 USE bdRestaurante;

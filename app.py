@@ -7,7 +7,8 @@ app.secret_key = '16'  # Needed for flash messages
 # Database connection configuration
 DB_CONFIG = {
     'Driver': '{SQL Server}',
-    'Server': 'AsusF15Eddy\SQLEXPRESS',
+    #'Server': 'AsusF15Eddy\SQLEXPRESS',
+    'Server': 'CHALI\SQLEXPRESS',
     'Database': 'bdRestaurante'
 }
 
