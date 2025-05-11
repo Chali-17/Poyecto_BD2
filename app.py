@@ -7,7 +7,9 @@ app.secret_key = '16'  # Clave secreta para sesiones
 # Configuración de conexión a SQL Server
 DB_CONFIG = {
     'Driver': '{SQL Server}',
-    'Server': 'AsusF15Eddy\\SQLEXPRESS',
+    #solo descomentas tu linea para conectarse a tu base de datos
+    #'Server': 'AsusF15Eddy\\SQLEXPRESS',
+    #'Server': 'CHALI\SQLEXPRESSS',
     'Database': 'bdRestaurante'
 }
 
