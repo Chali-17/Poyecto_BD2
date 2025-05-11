@@ -9,7 +9,7 @@ DB_CONFIG = {
     'Driver': '{SQL Server}',
     #solo descomentas tu linea para conectarse a tu base de datos
     #'Server': 'AsusF15Eddy\\SQLEXPRESS',
-    'Server': 'CHALI\SQLEXPRESSS',
+    #'Server': 'CHALI\SQLEXPRESSS',
     'Database': 'bdRestaurante'
 }
 
