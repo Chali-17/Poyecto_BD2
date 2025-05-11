@@ -1,0 +1,195 @@
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.042 seconds (107.421 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.031 seconds (145.539 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.022 seconds (205.078 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.018 seconds (250.651 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 2.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 2.
+BACKUP DATABASE successfully processed 578 pages in 0.019 seconds (237.458 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.026 seconds (173.527 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.019 seconds (237.458 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.020 seconds (225.585 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.025 seconds (180.468 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.042 seconds (107.421 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.048 seconds (93.994 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 576 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 578 pages in 0.042 seconds (107.421 MB/sec).
+11 percent processed.
+20 percent processed.
+30 percent processed.
+40 percent processed.
+50 percent processed.
+61 percent processed.
+70 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 584 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 586 pages in 0.062 seconds (73.777 MB/sec).
+11 percent processed.
+20 percent processed.
+30 percent processed.
+40 percent processed.
+50 percent processed.
+61 percent processed.
+70 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 584 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 586 pages in 0.033 seconds (138.612 MB/sec).
+11 percent processed.
+20 percent processed.
+30 percent processed.
+40 percent processed.
+50 percent processed.
+61 percent processed.
+71 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 584 pages for database 'bdTienda2', file 'bdTienda2' on file 1.
+Processed 2 pages for database 'bdTienda2', file 'bdTienda2_log' on file 1.
+BACKUP DATABASE successfully processed 586 pages in 0.039 seconds (117.287 MB/sec).
