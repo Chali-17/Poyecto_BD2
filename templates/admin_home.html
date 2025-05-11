@@ -2,54 +2,283 @@
 
 {% block title %}Admin Panel{% endblock %}
 
-{% block nav_links %}
-<!--<a href="#usuarios" class="nav-link">Gestionar Usuarios</a>
-<a href="#reportes" class="nav-link">Reportes</a>
-<a href="#configuracion" class="nav-link">Configuración</a>
-<a href="#inventario" class="nav-link">Inventario</a>-->
-<a href="#mesas" class="nav-link">Mesas</a>
-<a href="#productos" class="nav-link">Productos</a>
-<a href="#categorias" class="nav-link">Categorias</a>
-{% endblock %}
+{% block nav_links %}{% endblock %}
 
 {% block content %}
-    <h1>Panel de Administración</h1>
-    <div class="dashboard">
+<h1>Panel de Administración</h1>
 
-        <section id="usuarios">
-            <h2>Gestionar Usuarios</h2>
-            <!-- Contenido de usuarios -->
-        </section>
+<div class="dashboard">
+    <button class="admin-btn" onclick="openModal('modalUsuarios')">Gestionar Usuarios</button>
+    <button class="admin-btn" onclick="openModal('modalReportes')">Reportes</button>
+    <button class="admin-btn" onclick="openModal('modalConfiguracion')">Configuración</button>
+    <button class="admin-btn" onclick="openModal('modalInventario')">Inventario</button>
+    <button class="admin-btn" onclick="openModal('modalMesas')">Mesas</button>
+    <button class="admin-btn" onclick="openModal('modalProductos')">Productos</button>
+    <button class="admin-btn" onclick="openModal('modalCategorias')">Categorías</button>
+</div>
 
-        <section id="reportes">
-            <h2>Reportes</h2>
-            <!-- Contenido de reportes -->
-        </section>
-
-        <section id="configuracion">
-            <h2>Configuración</h2>
-            <!-- Contenido de configuración -->
-        </section>
-
-        <section id="inventario">
-            <h2>Inventario</h2>
-            <!-- Contenido de inventario -->
-        </section>
-
-        <section id="mesas">
-            <h2>Mesas</h2>
-            <!-- Contenido de mesas -->
-        </section>
-
-        <section id="productos">
-            <h2>Productos</h2>
-            <!-- Contenido de productos -->
-        </section>
-
-        <section id="categorias">
-            <h2>Categorías</h2>
-            <!-- Contenido de categorías -->
-        </section>
-
+<!-- Modales vacíos -->
+<div id="modalUsuarios" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalUsuarios')">&times;</span>
+        <h2>Gestionar Usuarios</h2>
     </div>
+</div>
+
+<div id="modalReportes" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalReportes')">&times;</span>
+        <h2>Reportes</h2>
+    </div>
+</div>
+
+<div id="modalConfiguracion" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalConfiguracion')">&times;</span>
+        <h2>Configuración</h2>
+    </div>
+</div>
+
+<div id="modalInventario" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalInventario')">&times;</span>
+        <h2>Inventario</h2>
+    </div>
+</div>
+
+<div id="modalMesas" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalMesas')">&times;</span>
+        <h2>Gestión de Mesas</h2>
+
+        <!-- Agregar nueva mesa -->
+        <form method="POST" action="/admin/mesas/agregar">
+            <input type="number" name="numero_mesa" placeholder="Número de mesa" required>
+            <button type="submit">Agregar Mesa</button>
+        </form>
+
+        <!-- Eliminar una mesa -->
+        <form method="GET" action="/admin/mesas/eliminar" style="margin-top: 20px;">
+            <label for="id_mesa">Selecciona una mesa para eliminar:</label>
+            <select name="id" id="id_mesa" required>
+                <option value="">-- Selecciona una mesa --</option>
+                {% for mesa in mesas %}
+                <option value="{{ mesa.id }}">Mesa {{ mesa.numero_mesa }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-delete" onclick="return confirm('¿Eliminar esta mesa?')">Eliminar Mesa</button>
+        </form>
+            <!-- Tabla de mesas -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>N° Mesa</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mesa in mesas %}
+                    <tr>
+                        <td>Mesa {{ mesa.numero_mesa }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if mesa.estado == 'Disponible' %}disponible
+                                {% elif mesa.estado == 'Ocupada' %}ocupada
+                                {% elif mesa.estado == 'Reservada' %}reservada
+                                {% endif %}">
+                                {{ mesa.estado }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+                    </form>
+                </div>
+            </div>
+
+<!-- Modal Productos -->
+<div id="modalProductos" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalProductos')">&times;</span>
+        <h2>Gestión de Productos</h2>
+
+        <!-- Agregar producto -->
+        <form id="formProducto" method="POST" action="/admin/productos/agregar">
+            <input type="text" name="nombre" placeholder="Nombre del producto" required>
+            <input type="number" name="precio" placeholder="Precio" step="0.01" required>
+            <select name="categoria_id" required>
+                <option value="">Selecciona una categoría</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Agregar</button>
+        </form>
+
+        <!-- Tabla de productos -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Categoría</th>
+                    <th>Editar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in productos %}
+                <tr>
+                    <td>{{ p.nombre }}</td>
+                    <td>{{ p.precio }}</td>
+                    <td>{{ p.categoria_nombre }}</td>
+                    <td>
+                        <button type="button"
+                            onclick="abrirEdicion({{ p.id }}, '{{ p.nombre | escape }}', {{ p.precio }}, {{ p.categoria_id }})">
+                            Editar
+                        </button>
+                    </td>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Eliminar producto -->
+        <h3>Eliminar Producto</h3>
+        <form method="GET" action="/admin/productos/eliminar">
+            <select name="id" required>
+                <option value="">Selecciona un producto</option>
+                {% for p in productos %}
+                <option value="{{ p.id }}">{{ p.nombre }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-delete">Eliminar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Editar producto -->
+<div id="modalEditarProducto" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalEditarProducto')">&times;</span>
+        <h2>Editar Producto</h2>
+        <form id="formEditarProducto" method="POST">
+            <input type="hidden" name="id" id="edit-id">
+            <input type="text" name="nombre" id="edit-nombre" placeholder="Nombre" required>
+            <input type="number" name="precio" id="edit-precio" placeholder="Precio" step="0.01" required>
+            <select name="categoria_id" id="edit-categoria" required>
+                {% for cat in categorias %}
+                <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Actualizar</button>
+        </form>
+    </div>
+</div>
+
+<div id="modalCategorias" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalCategorias')">&times;</span>
+        <h2>Gestión de Categorías</h2>
+
+        <!-- Agregar categoría -->
+        <form id="formCategoria" method="POST" action="/admin/categorias/agregar">
+            <input type="text" name="nombre" placeholder="Nombre de categoría" required>
+            <button type="submit">Agregar</button>
+        </form>
+
+        <!-- Tabla de categorías -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Editar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categorias %}
+                <tr>
+                    <td>{{ cat.nombre }}</td>
+                    <td>
+                        <button type="button"
+                            onclick="abrirEdicionCategoria({{ cat.id }}, '{{ cat.nombre | escape }}')">
+                            Editar
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Eliminar categoría -->
+        <h3>Eliminar Categoría</h3>
+        <form method="GET" action="/admin/categorias/eliminar">
+            <select name="id" required>
+                <option value="">Selecciona una categoría</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-delete">Eliminar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal editar categoría -->
+<div id="modalEditarCategoria" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalEditarCategoria')">&times;</span>
+        <h2>Editar Categoría</h2>
+        <form method="POST" id="formEditarCategoria">
+            <input type="hidden" name="id" id="edit-cat-id">
+            <input type="text" name="nombre" id="edit-cat-nombre" required>
+            <button type="submit">Actualizar</button>
+        </form>
+    </div>
+</div>
+
+
+<!-- JavaScript: modal y edición -->
+<script>
+function openModal(id) {
+    document.getElementById(id).style.display = "block";
+}
+function closeModal(id) {
+    document.getElementById(id).style.display = "none";
+}
+function abrirEdicion(id, nombre, precio, categoria_id) {
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-nombre').value = nombre;
+    document.getElementById('edit-precio').value = precio;
+    document.getElementById('edit-categoria').value = categoria_id;
+    document.getElementById('formEditarProducto').action = "/admin/productos/editar/" + id;
+    openModal('modalEditarProducto');
+}
+
+function abrirEdicionCategoria(id, nombre) {
+    document.getElementById('edit-cat-id').value = id;
+    document.getElementById('edit-cat-nombre').value = nombre;
+    document.getElementById('formEditarCategoria').action = "/admin/categorias/editar/" + id;
+    openModal('modalEditarCategoria');
+}
+
+function resaltarEstado(radio) {
+    const grupo = radio.name;  // nombre tipo "estado_5"
+    const labels = document.querySelectorAll(`input[name="${grupo}"]`);
+
+    labels.forEach(input => {
+        input.parentElement.classList.remove("activo");
+    });
+
+    radio.parentElement.classList.add("activo");
+}
+
+
+window.onclick = function(event) {
+    document.querySelectorAll(".modal").forEach(modal => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+};
+</script>
 {% endblock %}

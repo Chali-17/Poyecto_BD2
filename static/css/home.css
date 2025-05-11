@@ -20,25 +20,29 @@ body {
 
 /* Navbar styles */
 .navbar {
-    background: white;
-    padding: 15px 30px;
-    border-radius: 50px;
-    margin: 20px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    padding: 8px 16px;
+    border-radius: 25px;
+    margin: 20px 20px 0 auto; /* esquina superior derecha */
+    width: fit-content;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }
-
 .nav-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 10px 20px;
 }
 
 .nav-group {
-    display: flex;
-    gap: 20px;
-    align-items: center;
+    flex-grow: 1;
+}
+
+.nav-group:empty {
+    display: none;
 }
 
 .nav-link {
@@ -55,15 +59,13 @@ body {
 }
 
 .nav-link:hover:not(.active) {
-    background: #f0f0f0;
+    background: #000000;
 }
 
-.logout {
-    color: #ff4444;
-}
+
 
 .logout:hover {
-    background: #ffebeb;
+    background-color: #a71d2a;
 }
 
 /* Responsive design */
@@ -209,3 +211,225 @@ body {
         color: black;
     }
 }
+
+.admin-btn {
+    padding: 12px 24px;
+    margin: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.admin-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    overflow: auto;
+}
+
+.modal-content {
+    background: #f9f9f9;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 600px;
+    color: #333;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* ----- FORMULARIOS ----- */
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content button {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.modal-content button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.modal-content button:hover {
+    background-color: #0056b3;
+    cursor: pointer;
+}
+
+/* ----- TABLAS ----- */
+.modal-content table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.modal-content th,
+.modal-content td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+}
+
+.modal-content tr:hover {
+    background-color: #f1f1f1;
+}
+
+.modal-content .btn-edit {
+    background-color: #ffc107;
+    color: #000;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+.modal-content .btn-delete {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+}
+
+.modal-content .btn-delete:hover {
+    background-color: #a71d2a;
+}
+
+.close {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #999;
+}
+
+.close:hover {
+    color: black;
+}
+.close:focus {
+    color: black;
+}
+
+.nav-link.logout {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.nav-link.logout:hover {
+    background-color: #a71d2a;
+}
+
+
+.estado-toggle {
+    display: flex;
+    gap: 10px;
+}
+
+.estado-label {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: 0.3s ease;
+    user-select: none;
+}
+
+.estado-label input {
+    display: none;
+}
+
+.estado-label.activo {
+    opacity: 1;
+    outline: 2px solid #fff;
+}
+
+.estado-label.disponible {
+    background-color: #28a745;
+}
+
+.estado-label.ocupada {
+    background-color: #dc3545;
+}
+
+.estado-label.reservada {
+    background-color: #ffc107;
+    color: black;
+}
+
+.estado-label input[type="radio"] {
+    display: none;
+}
+
+.estado-label.disponible {
+    background-color: #28a745;
+}
+
+.estado-label.ocupada {
+    background-color: #dc3545;
+}
+
+.estado-label.reservada {
+    background-color: #ffc107;
+    color: #000;
+}
+
+/* Cuando está seleccionado, el borde resalta */
+.estado-label input[type="radio"]:checked + span {
+    outline: 2px solid #fff;
+}
+
+.estado-label input[type="radio"]:checked + label {
+    box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.5);
+}
+
+
+.estado-contadores {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.contador.disponible {
+    color: #28a745;
+}
+
+.contador.ocupada {
+    color: #dc3545;
+}
+
+.contador.reservada {
+    color: #ffc107;
+}
+
+
+
