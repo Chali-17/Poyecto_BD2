@@ -488,7 +488,7 @@ document.getElementById('formAgregarCategoria').addEventListener('submit', funct
 });
 
 function agregarFilaCategoria(c) {
-    // Agrega fila en la tabla de categorías
+    // Agregar a la tabla de categorías
     const tbody = document.querySelector('#tabla-categorias tbody');
     const row = document.createElement('tr');
     row.setAttribute('data-id', c.id);
@@ -498,22 +498,22 @@ function agregarFilaCategoria(c) {
     `;
     tbody.appendChild(row);
 
-    // Agrega opción al select de eliminar categoría
-    const selectCatEliminar = document.getElementById('id_categoria');
-    const optionEliminar = document.createElement('option');
-    optionEliminar.value = c.id;
-    optionEliminar.text = c.nombre;
-    selectCatEliminar.appendChild(optionEliminar);
+    // Eliminar duplicados previos en <select>
+    const selects = [
+        document.getElementById('id_categoria'),
+        document.querySelector('select[name="categoria_id"]'),
+        document.getElementById('edit-categoria')
+    ];
 
-    // ✅ También agregar a select del modal de productos
-    const selectAgregar = document.querySelector('select[name="categoria_id"]');
-    const selectEditar = document.getElementById('edit-categoria');
+    selects.forEach(select => {
+        const duplicados = Array.from(select.options).filter(opt => opt.textContent === c.nombre);
+        duplicados.forEach(opt => opt.remove());
 
-    [selectAgregar, selectEditar].forEach(select => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.nombre;
-        select.appendChild(opt);
+        // Agregar nueva opción actualizada
+        const newOption = document.createElement('option');
+        newOption.value = c.id;
+        newOption.textContent = c.nombre;
+        select.appendChild(newOption);
     });
 }
 
@@ -538,6 +538,7 @@ document.getElementById('formEditarCategoria').addEventListener('submit', functi
 });
 
 function actualizarFilaCategoria(c) {
+    // Actualizar fila en tabla
     const row = document.querySelector(`#tabla-categorias tr[data-id="${c.id}"]`);
     if (row) {
         row.innerHTML = `
@@ -546,35 +547,62 @@ function actualizarFilaCategoria(c) {
         `;
     }
 
-    const option = document.querySelector(`#id_categoria option[value="${c.id}"]`);
-    if (option) option.textContent = c.nombre;
+    // Actualizar <option> en todos los selects
+    const selects = [
+        document.getElementById('id_categoria'),
+        document.querySelector('select[name="categoria_id"]'),
+        document.getElementById('edit-categoria')
+    ];
+
+    selects.forEach(select => {
+        const option = select.querySelector(`option[value="${c.id}"]`);
+        if (option) option.textContent = c.nombre;
+    });
 }
+
 
 // ELIMINAR CATEGORÍA
 document.getElementById('formEliminarCategoria').addEventListener('submit', function (e) {
     e.preventDefault();
-    const formData = new FormData(this);
+    const form = e.target;
+    const formData = new FormData(form);
+    const msg = document.getElementById('mensaje-categoria');
+
     fetch('/admin/categorias/eliminar', {
         method: 'POST',
         body: formData
     })
     .then(res => res.json())
     .then(data => {
-        const msg = document.getElementById('mensaje-categoria');
         msg.innerHTML = `<div class="flash flash-${data.status}">${data.message}</div>`;
         if (data.status === 'success') {
-            eliminarCategoriaVisual(data.id);
-            this.reset();
+            eliminarCategoriaVisual(data.id, form.id_categoria.selectedOptions[0].textContent);
+            form.reset();
         }
     });
 });
 
-function eliminarCategoriaVisual(id) {
+
+function eliminarCategoriaVisual(id, nombre) {
+    // Eliminar de la tabla
     const row = document.querySelector(`#tabla-categorias tr[data-id="${id}"]`);
     if (row) row.remove();
 
-    const option = document.querySelector(`#id_categoria option[value="${id}"]`);
-    if (option) option.remove();
+    // Eliminar del <select> de eliminación
+    const eliminarSelect = document.getElementById('id_categoria');
+    const eliminarOption = eliminarSelect.querySelector(`option[value="${id}"]`);
+    if (eliminarOption) eliminarOption.remove();
+
+    // Eliminar de selects del modal productos
+    const selects = [
+        document.querySelector('select[name="categoria_id"]'),
+        document.getElementById('edit-categoria')
+    ];
+    selects.forEach(select => {
+        const option = Array.from(select.options).find(opt => opt.value == id || opt.text === nombre);
+        if (option) option.remove();
+    });
 }
+
 </script>
 {% endblock %}
