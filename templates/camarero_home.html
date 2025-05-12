@@ -3,14 +3,88 @@
 {% block title %}Panel Camarero{% endblock %}
 
 {% block nav_links %}
-    <a href="#" class="nav-link">Tomar Orden</a>
-    <a href="#" class="nav-link">Mesas</a>
-    <a href="#" class="nav-link">Pedidos Activos</a>
+    <a href="#" class="nav-link" onclick="openModal('modalTomarOrden')">Tomar Orden</a>
+    <a href="#" class="nav-link" onclick="openModal('modalPedidosActivos')">Pedidos Activos</a>
 {% endblock %}
 
 {% block content %}
-    <h1>Panel de Camarero</h1>
-    <div class="dashboard">
-        <!-- Content here -->
+<h1>Panel de Camarero</h1>
+
+<div class="dashboard">
+    <button class="admin-btn" onclick="openModal('modalTomarOrden')">Tomar Orden</button>
+    <button class="admin-btn" onclick="openModal('modalPedidosActivos')">Pedidos Activos</button>
+</div>
+
+<!-- Modal: Tomar Orden -->
+<div id="modalTomarOrden" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalTomarOrden')">&times;</span>
+        <h2>Tomar Orden</h2>
+        <form method="POST" action="/camarero/orden">
+            <select name="mesa_id" required>
+                <option value="">Seleccione una mesa</option>
+                {% for mesa in mesas %}
+                    {% if mesa.estado == 'Disponible' %}
+                        <option value="{{ mesa.id }}">Mesa {{ mesa.numero_mesa }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+            <select name="producto_id" required>
+                <option value="">Seleccione un producto</option>
+                {% for producto in productos %}
+                <option value="{{ producto.id }}">{{ producto.nombre }} - Q{{ producto.precio }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="number" name="cantidad" placeholder="Cantidad" min="1" required>
+
+            <button type="submit">Agregar Pedido</button>
+        </form>
     </div>
+</div>
+
+<!-- Modal: Pedidos Activos -->
+<div id="modalPedidosActivos" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('modalPedidosActivos')">&times;</span>
+        <h2>Pedidos Activos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mesa</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in pedidos_activos %}
+                <tr>
+                    <td>Mesa {{ pedido.mesa_numero }}</td>
+                    <td>{{ pedido.nombre_producto }}</td>
+                    <td>{{ pedido.cantidad }}</td>
+                    <td>{{ pedido.estado }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function openModal(id) {
+    document.getElementById(id).style.display = "block";
+}
+function closeModal(id) {
+    document.getElementById(id).style.display = "none";
+}
+window.onclick = function(event) {
+    document.querySelectorAll(".modal").forEach(modal => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+};
+</script>
 {% endblock %}
