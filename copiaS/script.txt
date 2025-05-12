@@ -1,0 +1,4 @@
+DECLARE @dest varchar(200)
+SET @dest = 'C:\Respaldos\COPIA'+CONCAT(DATEPART(SECOND,GETDATE()),'_',DATEPART(MINUTE,GETDATE())) + '.bak'
+BACKUP DATABASE [bdTiemda2] TO  DISK = @dest 
+GO
