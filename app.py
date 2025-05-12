@@ -108,9 +108,8 @@ def adminRes_home():
         print(f"Error en admin panel: {e}")
         return render_template('admin_home.html', productos=[], categorias=[], mesas=[], error="Error al cargar los datos.")
 
-# Agregar producto
 @app.route('/admin/productos/agregar', methods=['POST'])
-def agregar_producto_ajax():
+def agregar_producto():
     if session.get('user_role') != 'adminRes':
         return jsonify({'status': 'error', 'message': 'No autorizado'})
 
@@ -122,36 +121,39 @@ def agregar_producto_ajax():
         conn = get_db_connection(session['username'], session['password'])
         cursor = conn.cursor()
 
+        cursor.execute('SELECT nombre FROM Categoria WHERE id = ?', (categoria_id,))
+        categoria_nombre = cursor.fetchone()[0]
+
         cursor.execute('INSERT INTO Productos (nombre, precio, categoria_id) VALUES (?, ?, ?)',
                        (nombre, precio, categoria_id))
         conn.commit()
 
-        cursor.execute('''
-            SELECT TOP 1 p.id, p.nombre, p.precio, p.categoria_id, c.nombre
-            FROM Productos p
-            JOIN Categoria c ON p.categoria_id = c.id
-            ORDER BY p.id DESC
-        ''')
-        nuevo = cursor.fetchone()
+        cursor.execute('SELECT TOP 1 id FROM Productos WHERE nombre = ? ORDER BY id DESC', (nombre,))
+        prod_id = cursor.fetchone()[0]
+
+        # Auditoría
+        cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)',
+                       (session['username'], f'Agregó producto "{nombre}"'))
+        conn.commit()
 
         return jsonify({
             'status': 'success',
             'message': f'Producto "{nombre}" agregado.',
             'producto': {
-                'id': nuevo[0],
-                'nombre': nuevo[1],
-                'precio': nuevo[2],
-                'categoria_id': nuevo[3],
-                'categoria_nombre': nuevo[4]
+                'id': prod_id,
+                'nombre': nombre,
+                'precio': float(precio),
+                'categoria_id': int(categoria_id),
+                'categoria_nombre': categoria_nombre
             }
         })
-    except Exception as e:
-        print("Error:", e)
-        return jsonify({'status': 'error', 'message': 'Error al agregar'})
 
-# Eliminar producto
+    except Exception as e:
+        print(e)
+        return jsonify({'status': 'error', 'message': 'Error al agregar producto'})
+
 @app.route('/admin/productos/eliminar', methods=['POST'])
-def eliminar_producto_ajax():
+def eliminar_producto():
     if session.get('user_role') != 'adminRes':
         return jsonify({'status': 'error', 'message': 'No autorizado'})
 
@@ -160,51 +162,101 @@ def eliminar_producto_ajax():
     try:
         conn = get_db_connection(session['username'], session['password'])
         cursor = conn.cursor()
+
+        cursor.execute('SELECT nombre FROM Productos WHERE id = ?', (producto_id,))
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({'status': 'error', 'message': 'Producto no encontrado'})
+        nombre = row[0]
+
         cursor.execute('DELETE FROM Productos WHERE id = ?', (producto_id,))
+        cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)',
+                       (session['username'], f'Eliminó producto "{nombre}"'))
         conn.commit()
-        return jsonify({'status': 'success', 'message': 'Producto eliminado.', 'id': producto_id})
+
+        return jsonify({'status': 'success', 'message': f'Producto eliminado.', 'id': producto_id})
+
     except Exception as e:
-        print("Error:", e)
+        print(e)
         return jsonify({'status': 'error', 'message': 'Error al eliminar'})
+
 
 # Editar producto
 @app.route('/admin/productos/editar/<int:id>', methods=['POST'])
-def editar_producto_ajax(id):
+def editar_producto(id):
     if session.get('user_role') != 'adminRes':
         return jsonify({'status': 'error', 'message': 'No autorizado'})
 
-    nombre = request.form['nombre']
-    precio = request.form['precio']
-    categoria_id = request.form['categoria_id']
+    nombre_nuevo = request.form['nombre']
+    precio_nuevo = float(request.form['precio'])
+    categoria_id_nueva = int(request.form['categoria_id'])
 
     try:
         conn = get_db_connection(session['username'], session['password'])
         cursor = conn.cursor()
 
+        # Obtener datos actuales
+        cursor.execute('''
+            SELECT p.nombre, p.precio, c.nombre, p.categoria_id
+            FROM Productos p
+            JOIN Categoria c ON p.categoria_id = c.id
+            WHERE p.id = ?
+        ''', (id,))
+        original = cursor.fetchone()
+        if not original:
+            return jsonify({'status': 'error', 'message': 'Producto no encontrado'})
+
+        nombre_original, precio_original, categoria_nombre_original, categoria_id_original = original
+
+        # Actualizar producto
         cursor.execute('''
             UPDATE Productos
             SET nombre = ?, precio = ?, categoria_id = ?
             WHERE id = ?
-        ''', (nombre, precio, categoria_id, id))
-        conn.commit()
+        ''', (nombre_nuevo, precio_nuevo, categoria_id_nueva, id))
 
-        cursor.execute('SELECT c.nombre FROM Categoria c WHERE id = ?', (categoria_id,))
-        categoria_nombre = cursor.fetchone()[0]
+        # Obtener nueva categoría (para auditoría)
+        cursor.execute('SELECT nombre FROM Categoria WHERE id = ?', (categoria_id_nueva,))
+        nueva_categoria_nombre = cursor.fetchone()[0]
+
+        # Registro en auditoría (solo si cambió algo)
+        if nombre_nuevo != nombre_original:
+            cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)', (
+                session['username'],
+                f'Editó producto ID {id}: nombre de "{nombre_original}" a "{nombre_nuevo}"'
+            ))
+
+        if precio_nuevo != precio_original:
+            cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)', (
+                session['username'],
+                f'Editó producto ID {id}: precio de {precio_original} a {precio_nuevo}'
+            ))
+
+        if categoria_id_nueva != categoria_id_original:
+            cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)', (
+                session['username'],
+                f'Editó producto ID {id}: categoría de "{categoria_nombre_original}" a "{nueva_categoria_nombre}"'
+            ))
+
+        conn.commit()
 
         return jsonify({
             'status': 'success',
             'message': 'Producto actualizado.',
             'producto': {
                 'id': id,
-                'nombre': nombre,
-                'precio': precio,
-                'categoria_id': categoria_id,
-                'categoria_nombre': categoria_nombre
+                'nombre': nombre_nuevo,
+                'precio': precio_nuevo,
+                'categoria_id': categoria_id_nueva,
+                'categoria_nombre': nueva_categoria_nombre
             }
         })
+
     except Exception as e:
-        print("Error:", e)
-        return jsonify({'status': 'error', 'message': 'Error al editar'})
+        print(f"Error: {e}")
+        return jsonify({'status': 'error', 'message': 'Error inesperado'})
+
+
 
 @app.route('/admin/categorias/agregar', methods=['POST'])
 def agregar_categoria_ajax():
@@ -227,6 +279,11 @@ def agregar_categoria_ajax():
         cursor.execute('SELECT TOP 1 id FROM Categoria WHERE nombre = ? ORDER BY id DESC', (nombre,))
         cat_id = cursor.fetchone()[0]
 
+        # Auditoría
+        cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)',
+                       (session['username'], f'Agregó categoría "{nombre}"'))
+        conn.commit()
+
         return jsonify({'status': 'success', 'message': f'Categoría "{nombre}" agregada.', 'categoria': {'id': cat_id, 'nombre': nombre}})
     except Exception as e:
         print(e)
@@ -234,24 +291,43 @@ def agregar_categoria_ajax():
 
 
 @app.route('/admin/categorias/editar/<int:id>', methods=['POST'])
-def editar_categoria_ajax(id):
+def editar_categoria(id):
     if session.get('user_role') != 'adminRes':
         return jsonify({'status': 'error', 'message': 'No autorizado'})
 
-    nombre = request.form['nombre'].strip()
+    nuevo_nombre = request.form.get('nombre')
 
     try:
         conn = get_db_connection(session['username'], session['password'])
         cursor = conn.cursor()
 
-        cursor.execute('UPDATE Categoria SET nombre = ? WHERE id = ?', (nombre, id))
+        # Obtener nombre actual
+        cursor.execute('SELECT nombre FROM Categoria WHERE id = ?', (id,))
+        actual = cursor.fetchone()
+        if not actual:
+            return jsonify({'status': 'error', 'message': 'Categoría no encontrada'})
+
+        nombre_actual = actual[0]
+
+        # Actualizar solo si es diferente
+        if nuevo_nombre != nombre_actual:
+            cursor.execute('UPDATE Categoria SET nombre = ? WHERE id = ?', (nuevo_nombre, id))
+            cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)', (
+                session['username'],
+                f'Editó categoría ID {id}: nombre de "{nombre_actual}" a "{nuevo_nombre}"'
+            ))
+
         conn.commit()
 
-        return jsonify({'status': 'success', 'message': 'Categoría actualizada.', 'categoria': {'id': id, 'nombre': nombre}})
-    except Exception as e:
-        print(e)
-        return jsonify({'status': 'error', 'message': 'Error al editar'})
+        return jsonify({
+            'status': 'success',
+            'message': 'Categoría actualizada.',
+            'categoria': {'id': id, 'nombre': nuevo_nombre}
+        })
 
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'status': 'error', 'message': 'Error inesperado'})
 
 @app.route('/admin/categorias/eliminar', methods=['POST'])
 def eliminar_categoria_ajax():
@@ -264,29 +340,26 @@ def eliminar_categoria_ajax():
         conn = get_db_connection(session['username'], session['password'])
         cursor = conn.cursor()
 
-        # Verificar si hay productos usando esta categoría
         cursor.execute('SELECT COUNT(*) FROM Productos WHERE categoria_id = ?', (cat_id,))
         count = cursor.fetchone()[0]
-
         if count > 0:
-            return jsonify({
-                'status': 'error',
-                'message': 'No se puede eliminar: hay productos asociados a esta categoría.'
-            })
+            return jsonify({'status': 'error', 'message': 'No se puede eliminar: hay productos asociados.'})
+
+        cursor.execute('SELECT nombre FROM Categoria WHERE id = ?', (cat_id,))
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({'status': 'error', 'message': 'Categoría no encontrada'})
+        nombre = row[0]
 
         cursor.execute('DELETE FROM Categoria WHERE id = ?', (cat_id,))
+        cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)',
+                       (session['username'], f'Eliminó categoría "{nombre}"'))
         conn.commit()
 
-        return jsonify({
-            'status': 'success',
-            'message': 'Categoría eliminada.',
-            'id': cat_id
-        })
-
+        return jsonify({'status': 'success', 'message': 'Categoría eliminada.', 'id': cat_id})
     except Exception as e:
         print(e)
         return jsonify({'status': 'error', 'message': 'Error inesperado al eliminar'})
-
 
 
 @app.route('/admin/mesas/agregar', methods=['POST'])
