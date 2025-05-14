@@ -1,4 +1,5 @@
 -- Crear un procedimiento almacenado que devuelva un informe de auditoría.
+--ejcutar 14-05-2025
 CREATE PROCEDURE informeAuditoria
 AS
 BEGIN

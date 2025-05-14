@@ -53,3 +53,22 @@ GRANT SELECT, INSERT, UPDATE ON Pedidos TO CamareroRol;
 EXEC sp_addrolemember 'CamareroRol', 'camarero';
 
 
+
+
+
+
+
+
+--ejecutar estas lineas 14-05-2025
+
+
+--nuevos permisos 
+GRANT SELECT ON dbo.Mesas TO camarero;
+GRANT SELECT ON dbo.Productos TO camarero;
+GRANT EXECUTE ON InsertarPedidoCompleto TO camarero;
+
+--modificar tabla 
+ALTER TABLE Pedidos DROP COLUMN fecha_pedido;
+
+ALTER TABLE Pedidos ADD fecha_pedido DATETIME DEFAULT GETDATE();
+
