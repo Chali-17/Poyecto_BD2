@@ -1,4 +1,4 @@
 DECLARE @dest varchar(200)
-SET @dest = 'C:\Respaldos\COPIA'+CONCAT(DATEPART(SECOND,GETDATE()),'_',DATEPART(MINUTE,GETDATE())) + '.bak'
-BACKUP DATABASE [bdTiemda2] TO  DISK = @dest 
+SET @dest = 'C:\PROYECTOSGIT\Poyecto_BD2\copiaS\COPIA'+CONCAT(DATEPART(SECOND,GETDATE()),'_',DATEPART(MINUTE,GETDATE())) + '.bak'
+BACKUP DATABASE [bdRestaurante] TO  DISK = @dest 
 GO

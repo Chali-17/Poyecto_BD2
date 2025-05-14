@@ -1,1 +1,1 @@
-"C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\SQLCMD.EXE" -S CHALI\SQLEXPRESS -i "C:\Respaldos\codigo.sql" >> log.txt
+"C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\SQLCMD.EXE" -S CHALI\SQLEXPRESS -i "C:\PROYECTOSGIT\Poyecto_BD2\copiaS\codigo.sql" >> log.txt

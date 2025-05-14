@@ -1,0 +1,221 @@
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.024 seconds (214.029 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.030 seconds (171.223 MB/sec).
+11 percent processed.
+21 percent processed.
+30 percent processed.
+40 percent processed.
+50 percent processed.
+60 percent processed.
+70 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.021 seconds (244.605 MB/sec).
+11 percent processed.
+21 percent processed.
+30 percent processed.
+40 percent processed.
+50 percent processed.
+60 percent processed.
+70 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.020 seconds (256.835 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.026 seconds (197.566 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.021 seconds (244.605 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.020 seconds (256.835 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.020 seconds (256.835 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+70 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.021 seconds (244.605 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.022 seconds (233.487 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+40 percent processed.
+50 percent processed.
+60 percent processed.
+70 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.036 seconds (142.686 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+41 percent processed.
+51 percent processed.
+61 percent processed.
+71 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.021 seconds (244.605 MB/sec).
+11 percent processed.
+21 percent processed.
+30 percent processed.
+40 percent processed.
+50 percent processed.
+60 percent processed.
+70 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.020 seconds (256.835 MB/sec).
+11 percent processed.
+21 percent processed.
+31 percent processed.
+40 percent processed.
+50 percent processed.
+60 percent processed.
+70 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.023 seconds (223.335 MB/sec).
+11 percent processed.
+21 percent processed.
+30 percent processed.
+40 percent processed.
+50 percent processed.
+60 percent processed.
+70 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 656 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 658 pages in 0.034 seconds (151.079 MB/sec).
+10 percent processed.
+20 percent processed.
+30 percent processed.
+40 percent processed.
+50 percent processed.
+60 percent processed.
+70 percent processed.
+80 percent processed.
+90 percent processed.
+100 percent processed.
+Processed 664 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 666 pages in 0.038 seconds (136.821 MB/sec).
+11 percent processed.
+20 percent processed.
+30 percent processed.
+40 percent processed.
+50 percent processed.
+60 percent processed.
+70 percent processed.
+81 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 664 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 666 pages in 0.044 seconds (118.164 MB/sec).

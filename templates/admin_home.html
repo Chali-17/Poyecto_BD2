@@ -8,10 +8,8 @@
 <h1>Panel de Administración</h1>
 
 <div class="dashboard">
-    <button class="admin-btn" onclick="openModal('modalUsuarios')">Gestionar Usuarios</button>
     <button class="admin-btn" onclick="openModal('modalReportes')">Reportes</button>
-    <button class="admin-btn" onclick="openModal('modalConfiguracion')">Configuración</button>
-    <button class="admin-btn" onclick="openModal('#')">Copia de seguridad</button>
+    <button class="admin-btn" onclick="ejecutarCopiaSeguridad()">Copia de seguridad</button>
     <button class="admin-btn" onclick="openModal('modalMesas')">Mesas</button>
     <button class="admin-btn" onclick="openModal('modalProductos')">Productos</button>
     <button class="admin-btn" onclick="openModal('modalCategorias')">Categorías</button>
@@ -28,7 +26,8 @@
 <div id="modalReportes" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('modalReportes')">&times;</span>
-        <h2>Reportes</h2>
+        <h2>Reportes <br></h2>
+        <button onclick="window.open('/admin/reporte_auditoria_pdf', '_blank')">Descargar PDF Auditoría</button>
     </div>
 </div>
 
@@ -605,4 +604,40 @@ function eliminarCategoriaVisual(id, nombre) {
 }
 
 </script>
+<!-- Modal para mostrar el resultado -->
+<div id="backupModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('backupModal')">&times;</span>
+    <h2>Resultado de la copia de seguridad</h2>
+    <p id="backupMessage"></p>
+  </div>
+</div>
+<script>
+function ejecutarCopiaSeguridad() {
+    fetch('/admin/copia_seguridad', {method: 'POST'})
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('backupMessage').textContent = data.message;
+        openModal('backupModal');
+      })
+      .catch(() => {
+        document.getElementById('backupMessage').textContent = 'Copia fallida';
+        openModal('backupModal');
+      });
+}
+</script>
+</div>
+</div>
+</div>
 {% endblock %}
+<script>
+function mostrarAuditoria() {
+    window.open('/admin/reporte_auditoria_pdf', '_blank');
+}
+function descargarAuditoriaPDF() {
+    window.open('/admin/reporte_auditoria_pdf', '_blank');
+}
+function imprimirAuditoria() {
+    window.open('/admin/reporte_auditoria_pdf', '_blank');
+}
+</script>

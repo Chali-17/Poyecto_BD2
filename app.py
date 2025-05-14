@@ -1,13 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import pyodbc
 
+from io import BytesIO
+from flask import send_file
+
 app = Flask(__name__)
 app.secret_key = '16'  # Clave secreta para sesiones
 
 # Configuración de conexión a SQL Server
 DB_CONFIG = {
     'Driver': '{SQL Server}',
-    'Server': 'AsusF15Eddy\\SQLEXPRESS',
+    'Server': 'CHALI\SQLEXPRESS',
     'Database': 'bdRestaurante'
 }
 
@@ -455,10 +458,102 @@ def cocina_home():
     return render_template('cocina_home.html')
     
 
+
+
+
+from flask import jsonify
+import subprocess
+import sys
+import os
+
+@app.route('/admin/copia_seguridad', methods=['POST'])
+def copia_seguridad():
+    import subprocess
+    import os
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    bat_path = os.path.join(base_dir, 'copiaS', 'seguridad.bat')
+
+    try:
+        result = subprocess.run([bat_path], shell=True, check=True)
+        # Insertar en Auditoría
+        try:
+            conn = get_db_connection(session['username'], session['password'])
+            cursor = conn.cursor()
+            cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)', (
+                session['username'],
+                'Realizó una copia de seguridad'
+            ))
+            conn.commit()
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error al registrar en auditoría: {e}")
+        return jsonify({"status": "success", "message": "Copia de seguridad ejecutada correctamente."})
+    except subprocess.CalledProcessError as e:
+        return jsonify({"status": "error", "message": f"Error al ejecutar la copia de seguridad: {e}"})
+    except FileNotFoundError:
+        return jsonify({"status": "error", "message": "No se encontró el archivo seguridad.bat en la carpeta copiaS."})
+
+@app.route('/admin/reporte_auditoria_pdf')
+def reporte_auditoria_pdf():
+    if session.get('user_role') != 'adminRes':
+        return "No autorizado", 403
+
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+        cursor.execute('SELECT UsuarioSys, accion, fecha FROM Auditoria ORDER BY fecha DESC')
+        auditoria = cursor.fetchall()
+        # Registrar la acción de generación de reporte en la auditoría
+        cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)',
+                       (session['username'], 'Generó reporte de auditoría en PDF'))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"Error al obtener auditoría: {e}")
+        return "Error al generar el reporte", 500
+
+    from reportlab.lib.pagesizes import letter
+    from reportlab.pdfgen import canvas
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(200, height - 40, "Reporte de Auditoría")
+    p.setFont("Helvetica", 10)
+    y = height - 70
+    p.drawString(40, y, "N°")
+    p.drawString(70, y, "Usuario")
+    p.drawString(210, y, "Acción")
+    p.drawString(430, y, "Fecha")
+    y -= 15
+    p.line(40, y, 570, y)
+    y -= 15
+
+    fila = 1
+    for usuario, accion, fecha in auditoria:
+        if y < 50:
+            p.showPage()
+            y = height - 50
+            p.setFont("Helvetica", 10)
+        p.drawString(40, y, str(fila))
+        p.drawString(70, y, str(usuario))
+        p.drawString(210, y, str(accion))
+        p.drawString(430, y, str(fecha))
+        y -= 15
+        fila += 1
+
+    p.save()
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="reporte_auditoria.pdf", mimetype='application/pdf')
+
 # Ejecutar la app
 if __name__ == '__main__':
     app.run(debug=True)
-
 
 
 
