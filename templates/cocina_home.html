@@ -3,13 +3,120 @@
 {% block title %}Panel Cocina{% endblock %}
 
 {% block nav_links %}
-    <a href="#" class="nav-link">Órdenes Pendientes</a>
-    <a href="#" class="nav-link">Inventario Cocina</a>
+    <a href="#" class="nav-link" onclick="openModal('modalOrdenesPendientes')">Órdenes Pendientes</a>
 {% endblock %}
 
 {% block content %}
-    <h1>Panel de Cocina</h1>
-    <div class="dashboard">
-        <!-- Content here -->
-    </div>
+<h1>Panel de Cocina</h1>
+
+<div class="dashboard">
+    <button class="admin-btn" onclick="openModal('modalOrdenesPendientes')">Órdenes Pendientes</button>
+</div>
+
+<!-- 🟡 Modal: Órdenes Pendientes -->
+<div id="modalOrdenesPendientes" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('modalOrdenesPendientes')">&times;</span>
+    <h2>Órdenes Pendientes</h2>
+
+    {% if pedidos %}
+        {% for pedido in pedidos %}
+        <div class="card">
+            <h3>🪑 Mesa {{ pedido.mesa }} — Pedido #{{ pedido.pedido_id }}</h3>
+            <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+            <ul>
+                {% for producto in pedido.productos %}
+                <li>{{ producto.nombre }} (x{{ producto.cantidad }})</li>
+                {% endfor %}
+            </ul>
+
+            {% if pedido.estado == 'Pendiente' %}
+                <button style="background-color:#007bff; color:white;" onclick="cambiarEstado({{ pedido.pedido_id }}, 'Preparando')">📦 Preparar</button>
+            {% elif pedido.estado == 'Preparando' %}
+                <button style="background-color:green; color:white;" onclick="cambiarEstado({{ pedido.pedido_id }}, 'Servido')">✅ Marcar como Servido</button>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No hay órdenes pendientes.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Sección: Órdenes Completadas -->
+<div class="dashboard" style="margin-top: 30px;">
+    <h2>Órdenes Completadas</h2>
+
+    {% if pedidos_servidos %}
+        {% for pedido in pedidos_servidos %}
+        <div class="card">
+            <h3>🪑 Mesa {{ pedido.mesa }} — Pedido #{{ pedido.pedido_id }}</h3>
+            <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+            <ul>
+                {% for producto in pedido.productos %}
+                <li>{{ producto.nombre }} (x{{ producto.cantidad }})</li>
+                {% endfor %}
+            </ul>
+            <button style="background-color:gray; color:white;" onclick="cambiarEstado({{ pedido.pedido_id }}, 'Archivado')">🗃️ Archivar</button>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No hay pedidos completados.</p>
+    {% endif %}
+</div>
+
+<!-- Sección: Historial de Pedidos Archivados -->
+<div class="dashboard" style="margin-top: 30px;">
+    <h2>Historial de Pedidos Archivados</h2>
+
+    {% if pedidos_archivados %}
+        {% for pedido in pedidos_archivados %}
+        <div class="card">
+            <h3>🪑 Mesa {{ pedido.mesa }} — Pedido #{{ pedido.pedido_id }}</h3>
+            <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+            <ul>
+                {% for producto in pedido.productos %}
+                <li>{{ producto.nombre }} (x{{ producto.cantidad }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No hay pedidos archivados.</p>
+    {% endif %}
+</div>
+
+
+<script>
+function openModal(id) {
+    document.getElementById(id).style.display = "block";
+}
+function closeModal(id) {
+    document.getElementById(id).style.display = "none";
+}
+window.onclick = function(event) {
+    document.querySelectorAll(".modal").forEach(modal => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+}
+
+// Llamar al backend para cambiar estado
+function cambiarEstado(pedido_id, nuevo_estado) {
+    fetch('/cocina/estado', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({pedido_id: pedido_id, estado: nuevo_estado})
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.status === 'success') {
+            window.location.reload();
+        }
+    });
+}
+</script>
 {% endblock %}

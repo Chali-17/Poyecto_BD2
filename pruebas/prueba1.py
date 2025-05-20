@@ -6,7 +6,7 @@ import json
 # Configuración de conexión a SQL Server
 DB_CONFIG = {
     'Driver': '{SQL Server}',
-    'Server': 'CHALI\\SQLEXPRESS',
+    'Server': 'AsusF15Eddy\SQLEXPRESS',
     'Database': 'bdRestaurante',
     'UID': 'camarero',
     'PWD': 'cam1234'

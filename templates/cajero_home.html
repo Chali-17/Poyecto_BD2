@@ -10,7 +10,30 @@
 
 {% block content %}
     <h1>Panel de Cajero</h1>
-    <div class="dashboard">
-        <!-- Content here -->
-    </div>
+
+<div class="dashboard">
+    {% if pedidos %}
+        {% for pedido in pedidos %}
+        <div class="card">
+            <h3>🪑 Mesa {{ pedido.mesa }} — Pedido #{{ pedido.pedido_id }}</h3>
+            <ul>
+                {% for producto in pedido.productos %}
+                <li>{{ producto.nombre }} (x{{ producto.cantidad }}) - Q{{ producto.subtotal }}</li>
+                {% endfor %}
+            </ul>
+            <p><strong>Total:</strong> Q{{ pedido.total }}</p>
+            <button onclick="cobrarPedido({{ pedido.pedido_id }})">💰 Cobrar</button>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No hay pedidos listos para cobrar.</p>
+    {% endif %}
+</div>
+
+<script>
+function cobrarPedido(pedido_id) {
+    // Aquí luego podrías redirigir a una pantalla de cobro o generar factura
+    alert("Cobro registrado para el pedido #" + pedido_id);
+}
+</script>
 {% endblock %}

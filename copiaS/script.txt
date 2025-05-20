@@ -1,4 +1,4 @@
 DECLARE @dest varchar(200)
-SET @dest = 'C:\PROYECTOSGIT\Poyecto_BD2\copiaS\COPIA'+CONCAT(DATEPART(SECOND,GETDATE()),'_',DATEPART(MINUTE,GETDATE())) + '.bak'
+SET @dest = 'C:\Users\edinc\OneDrive\Escritorio\Poyecto_BD2\copiaS\COPIA'+CONCAT(DATEPART(SECOND,GETDATE()),'_',DATEPART(MINUTE,GETDATE())) + '.bak'
 BACKUP DATABASE [bdRestaurante] TO  DISK = @dest 
 GO
