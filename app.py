@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-import pyodbc
+import pyodbc, json
 
 from io import BytesIO
 from flask import send_file
@@ -10,7 +10,7 @@ app.secret_key = '16'  # Clave secreta para sesiones
 # Configuración de conexión a SQL Server
 DB_CONFIG = {
     'Driver': '{SQL Server}',
-    'Server': 'CHALI\SQLEXPRESS',
+    'Server': 'AsusF15Eddy\SQLEXPRESS',
     'Database': 'bdRestaurante'
 }
 
@@ -443,23 +443,263 @@ def eliminar_mesa_ajax():
 def camarero_home():
     if session.get('user_role') != 'camarero':
         return redirect(url_for('login'))
-    return render_template('camarero_home.html')
 
-@app.route('/cajero')
-def cajero_home():
-    if session.get('user_role') != 'cajero':
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+
+        # Obtener mesas disponibles
+        cursor.execute("SELECT id, numero_mesa, estado FROM Mesas WHERE estado = 'Disponible'")
+        mesas = cursor.fetchall()
+
+        # Obtener productos
+        cursor.execute("SELECT id, nombre, precio FROM Productos")
+        productos = cursor.fetchall()
+
+        # Obtener pedidos activos (Pendiente o Preparando) con sus productos
+        cursor.execute("""
+            SELECT 
+                p.id AS pedido_id,
+                m.numero_mesa,
+                p.estado,
+                pr.nombre AS nombre_producto,
+                dp.cantidad
+            FROM Pedidos p
+            JOIN Mesas m ON m.id = p.mesa_id
+            JOIN Detalle_Pedidos dp ON dp.pedido_id = p.id
+            JOIN Productos pr ON pr.id = dp.producto_id
+            WHERE p.estado IN ('Pendiente', 'Preparando')
+            ORDER BY p.id DESC
+        """)
+        rows = cursor.fetchall()
+
+        # Agrupar productos por pedido
+        pedidos_dict = {}
+        for row in rows:
+            pid = row.pedido_id
+            if pid not in pedidos_dict:
+                pedidos_dict[pid] = {
+                    'pedido_id': pid,
+                    'mesa': row.numero_mesa,
+                    'estado': row.estado,
+                    'productos': []
+                }
+            pedidos_dict[pid]['productos'].append({
+                'nombre': row.nombre_producto,
+                'cantidad': row.cantidad
+            })
+
+        pedidos_agrupados = list(pedidos_dict.values())
+
+        cursor.close()
+        conn.close()
+
+        return render_template('camarero_home.html',
+                               mesas=mesas,
+                               productos=productos,
+                               pedidos_activos=pedidos_agrupados)
+
+    except Exception as e:
+        print(f"Error en camarero_home: {e}")
+        return render_template('camarero_home.html',
+                               mesas=[], productos=[], pedidos_activos=[])
+
+
+
+@app.route('/camarero/orden', methods=['POST'])
+def tomar_orden():
+    if session.get('user_role') != 'camarero':
         return redirect(url_for('login'))
-    return render_template('cajero_home.html')
+
+    mesa_id = request.form.get('mesa_id')
+    productos_id = request.form.getlist('producto_id[]')
+    cantidades = request.form.getlist('cantidad[]')
+
+    productos_detalles = []
+
+    for pid, cant in zip(productos_id, cantidades):
+        if pid and cant and int(cant) > 0:
+            productos_detalles.append({"producto_id": int(pid), "cantidad": int(cant)})
+
+    if not productos_detalles:
+        flash("Debe seleccionar al menos un producto con cantidad válida.", "error")
+        return redirect(url_for('camarero_home'))
+
+    productos_json = json.dumps(productos_detalles)
+
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+        cursor.execute("EXEC InsertarPedidoCompleto ?, ?, ?", (mesa_id, 'Pendiente', productos_json))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash("Pedido registrado correctamente", "success")
+    except Exception as e:
+        flash(f"Error al registrar pedido: {e}", "error")
+
+    return redirect(url_for('camarero_home'))
 
 @app.route('/cocina')
 def cocina_home():
     if session.get('user_role') != 'cocina':
         return redirect(url_for('login'))
-    return render_template('cocina_home.html')
+
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+
+        def agrupar_pedidos(rows):
+            pedidos_dict = {}
+            for row in rows:
+                pid = row.pedido_id
+                if pid not in pedidos_dict:
+                    pedidos_dict[pid] = {
+                        'pedido_id': pid,
+                        'mesa': row.numero_mesa,
+                        'estado': row.estado,
+                        'productos': []
+                    }
+                pedidos_dict[pid]['productos'].append({
+                    'nombre': row.nombre_producto,
+                    'cantidad': row.cantidad
+                })
+            return list(pedidos_dict.values())
+
+        # Activos
+        # Pedidos activos usando vistaCocina (solo estado 'Pendiente')
+        cursor.execute("""
+            SELECT vc.id AS pedido_id, m.numero_mesa, vc.estado,
+                pr.nombre AS nombre_producto, dp.cantidad
+            FROM vistaCocina vc
+            JOIN Mesas m ON m.id = vc.mesa_id
+            JOIN Detalle_Pedidos dp ON dp.pedido_id = vc.id
+            JOIN Productos pr ON pr.id = dp.producto_id
+            ORDER BY vc.id DESC
+        """)
+        pedidos_activos = agrupar_pedidos(cursor.fetchall())
+
+
+        # Servidos
+        cursor.execute("""
+            SELECT p.id AS pedido_id, m.numero_mesa, p.estado, pr.nombre AS nombre_producto, dp.cantidad
+            FROM Pedidos p
+            JOIN Mesas m ON m.id = p.mesa_id
+            JOIN Detalle_Pedidos dp ON dp.pedido_id = p.id
+            JOIN Productos pr ON pr.id = dp.producto_id
+            WHERE p.estado = 'Servido'
+            ORDER BY p.id DESC
+        """)
+        pedidos_servidos = agrupar_pedidos(cursor.fetchall())
+
+        # Archivados
+        cursor.execute("""
+            SELECT p.id AS pedido_id, m.numero_mesa, p.estado, pr.nombre AS nombre_producto, dp.cantidad
+            FROM Pedidos p
+            JOIN Mesas m ON m.id = p.mesa_id
+            JOIN Detalle_Pedidos dp ON dp.pedido_id = p.id
+            JOIN Productos pr ON pr.id = dp.producto_id
+            WHERE p.estado = 'Archivado'
+            ORDER BY p.id DESC
+        """)
+        pedidos_archivados = agrupar_pedidos(cursor.fetchall())
+
+        cursor.close()
+        conn.close()
+
+        return render_template('cocina_home.html',
+                               pedidos=pedidos_activos,
+                               pedidos_servidos=pedidos_servidos,
+                               pedidos_archivados=pedidos_archivados)
+
+    except Exception as e:
+        print(f"Error en cocina_home: {e}")
+        return render_template('cocina_home.html',
+                               pedidos=[], pedidos_servidos=[], pedidos_archivados=[])
+
     
+@app.route('/cocina/estado', methods=['POST'])
+def actualizar_estado_pedido():
+    if session.get('user_role') != 'cocina':
+        return jsonify({'status': 'error', 'message': 'No autorizado'})
+
+    data = request.get_json()
+    pedido_id = data.get('pedido_id')
+    nuevo_estado = data.get('estado')
+
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE Pedidos SET estado = ? WHERE id = ?", (nuevo_estado, pedido_id))
+
+        cursor.execute("INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)",
+                       (session['username'], f'Cocinero actualizó Pedido #{pedido_id} a estado "{nuevo_estado}"'))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({'status': 'success', 'message': f'Pedido actualizado a {nuevo_estado}.'})
+
+    except Exception as e:
+        print(e)
+        return jsonify({'status': 'error', 'message': 'Error al actualizar estado'})
 
 
+@app.route('/cajero')
+def cajero_home():
+    if session.get('user_role') != 'cajero':
+        return redirect(url_for('login'))
 
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+
+        # Usar vistaCajero para obtener solo pedidos servidos
+        cursor.execute("""
+            SELECT vc.id AS pedido_id, m.numero_mesa, vc.estado,
+                   pr.nombre AS nombre_producto, dp.cantidad,
+                   pr.precio * dp.cantidad AS subtotal
+            FROM vistaCajero vc
+            JOIN Mesas m ON m.id = vc.mesa_id
+            JOIN Detalle_Pedidos dp ON dp.pedido_id = vc.id
+            JOIN Productos pr ON pr.id = dp.producto_id
+            ORDER BY vc.id DESC
+        """)
+        rows = cursor.fetchall()
+
+        # Agrupar productos por pedido
+        pedidos_dict = {}
+        for row in rows:
+            pid = row.pedido_id
+            if pid not in pedidos_dict:
+                pedidos_dict[pid] = {
+                    'pedido_id': pid,
+                    'mesa': row.numero_mesa,
+                    'estado': row.estado,
+                    'productos': [],
+                    'total': 0
+                }
+            pedidos_dict[pid]['productos'].append({
+                'nombre': row.nombre_producto,
+                'cantidad': row.cantidad,
+                'subtotal': row.subtotal
+            })
+            pedidos_dict[pid]['total'] += row.subtotal
+
+        pedidos = list(pedidos_dict.values())
+
+        cursor.close()
+        conn.close()
+
+        return render_template('cajero_home.html', pedidos=pedidos)
+
+    except Exception as e:
+        print(f"Error en cajero_home: {e}")
+        return render_template('cajero_home.html', pedidos=[])
+
+    
 
 from flask import jsonify
 import subprocess
