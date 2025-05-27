@@ -467,4 +467,16 @@ body {
     background-color: #28a745;
 }
 
+.btn-servido {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 10px 0;
+}
 
+.btn-servido:hover {
+    background-color: #218838;
+}

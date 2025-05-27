@@ -3,9 +3,7 @@
 {% block title %}Panel Cajero{% endblock %}
 
 {% block nav_links %}
-    <a href="#" class="nav-link">Cobrar</a>
-    <a href="#" class="nav-link">Facturas</a>
-    <a href="#" class="nav-link">Cierre de Caja</a>
+
 {% endblock %}
 
 {% block content %}
@@ -32,8 +30,33 @@
 
 <script>
 function cobrarPedido(pedido_id) {
-    // Aquí luego podrías redirigir a una pantalla de cobro o generar factura
-    alert("Cobro registrado para el pedido #" + pedido_id);
+    if (confirm('¿Está seguro de cobrar este pedido?')) {
+        fetch('/cajero/cobrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                pedido_id: pedido_id
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Pedido cobrado correctamente');
+                // Abrir el PDF en una nueva ventana
+                window.open('/' + data.recibo_path, '_blank');
+                location.reload();
+            } else {
+                alert('Error al cobrar el pedido: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar el cobro');
+        });
+    }
 }
 </script>
 {% endblock %}

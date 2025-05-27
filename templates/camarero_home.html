@@ -60,6 +60,9 @@
         <li>{{ producto.nombre }} (x{{ producto.cantidad }})</li>
         {% endfor %}
       </ul>
+      {% if pedido.estado == 'Preparando' %}
+        <button onclick="marcarComoServido({{ pedido.pedido_id }})" class="btn-servido">✅ Servido</button>
+      {% endif %}
       <hr>
     {% endfor %}
   </div>
@@ -100,5 +103,24 @@ function eliminarProducto(btn) {
     btn.parentElement.remove();
 }
 
+function marcarComoServido(pedido_id) {
+    fetch('/camarero/marcar-servido', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            pedido_id: pedido_id
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            window.location.reload();
+        } else {
+            alert('Error al marcar el pedido como servido');
+        }
+    });
+}
 </script>
 {% endblock %}

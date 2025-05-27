@@ -1,8 +1,67 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file
 import pyodbc, json
-
 from io import BytesIO
-from flask import send_file
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from datetime import datetime
+import os
+import pandas as pd
+
+def generar_factura_pdf(pedido_id, mesa, productos, total):
+    # Crear el directorio de facturas si no existe
+    os.makedirs('facturas', exist_ok=True)
+    
+    # Crear nombre único para el archivo
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'factura_pedido_{pedido_id}_{timestamp}.pdf'
+    filepath = os.path.join('facturas', filename)
+    
+    # Crear el PDF
+    c = canvas.Canvas(filepath, pagesize=letter)
+    
+    # Encabezado
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(30, 750, "Restaurante XYZ")
+    
+    c.setFont("Helvetica", 12)
+    c.drawString(30, 730, f"Fecha: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+    c.drawString(30, 710, f"Mesa: {mesa}")
+    c.drawString(30, 690, f"Pedido #: {pedido_id}")
+    
+    # Línea separadora
+    c.line(30, 680, 550, 680)
+    
+    # Encabezados de la tabla
+    y = 650
+    c.drawString(30, y, "Producto")
+    c.drawString(300, y, "Cantidad")
+    c.drawString(400, y, "Subtotal")
+    
+    # Línea separadora
+    y -= 10
+    c.line(30, y, 550, y)
+    
+    # Productos
+    y -= 20
+    for producto in productos:
+        c.drawString(30, y, producto['nombre'])
+        c.drawString(300, y, str(producto['cantidad']))
+        c.drawString(400, y, f"Q{producto['subtotal']}")
+        y -= 20
+    
+    # Total
+    y -= 20
+    c.line(30, y, 550, y)
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(300, y-20, f"Total: Q{total}")
+    
+    # Pie de página
+    c.setFont("Helvetica", 10)
+    c.drawString(30, 50, "¡Gracias por su visita!")
+    
+    c.save()
+    return filepath
 
 app = Flask(__name__)
 app.secret_key = '16'  # Clave secreta para sesiones
@@ -10,7 +69,7 @@ app.secret_key = '16'  # Clave secreta para sesiones
 # Configuración de conexión a SQL Server
 DB_CONFIG = {
     'Driver': '{SQL Server}',
-    'Server': 'AsusF15Eddy\SQLEXPRESS',
+    'Server': 'CHALI\SQLEXPRESS',
     'Database': 'bdRestaurante'
 }
 
@@ -651,24 +710,33 @@ def actualizar_estado_pedido():
 def cajero_home():
     if session.get('user_role') != 'cajero':
         return redirect(url_for('login'))
-
+    
     try:
         conn = get_db_connection(session['username'], session['password'])
         cursor = conn.cursor()
-
-        # Usar vistaCajero para obtener solo pedidos servidos
+        
+        # Obtener pedidos servidos que no han sido pagados
         cursor.execute("""
-            SELECT vc.id AS pedido_id, m.numero_mesa, vc.estado,
-                   pr.nombre AS nombre_producto, dp.cantidad,
-                   pr.precio * dp.cantidad AS subtotal
-            FROM vistaCajero vc
-            JOIN Mesas m ON m.id = vc.mesa_id
-            JOIN Detalle_Pedidos dp ON dp.pedido_id = vc.id
+            SELECT 
+                p.id AS pedido_id,
+                m.numero_mesa,
+                pr.nombre AS nombre_producto,
+                dp.cantidad,
+                pr.precio,
+                pr.precio * dp.cantidad AS subtotal,
+                p.estado
+            FROM Pedidos p
+            JOIN Mesas m ON m.id = p.mesa_id
+            JOIN Detalle_Pedidos dp ON dp.pedido_id = p.id
             JOIN Productos pr ON pr.id = dp.producto_id
-            ORDER BY vc.id DESC
+            WHERE p.estado = 'Servido'
+            ORDER BY p.id DESC
         """)
         rows = cursor.fetchall()
-
+        
+        # Imprimir información de diagnóstico
+        print("Número de filas encontradas:", len(rows) if rows else 0)
+        
         # Agrupar productos por pedido
         pedidos_dict = {}
         for row in rows:
@@ -677,24 +745,26 @@ def cajero_home():
                 pedidos_dict[pid] = {
                     'pedido_id': pid,
                     'mesa': row.numero_mesa,
-                    'estado': row.estado,
-                    'productos': [],
-                    'total': 0
+                    'total': 0,
+                    'productos': []
                 }
+            subtotal = row.subtotal
             pedidos_dict[pid]['productos'].append({
                 'nombre': row.nombre_producto,
                 'cantidad': row.cantidad,
-                'subtotal': row.subtotal
+                'subtotal': subtotal
             })
-            pedidos_dict[pid]['total'] += row.subtotal
+            pedidos_dict[pid]['total'] += subtotal
 
         pedidos = list(pedidos_dict.values())
-
+        
+        # Imprimir información de diagnóstico
+        print("Pedidos procesados:", len(pedidos))
+        
         cursor.close()
         conn.close()
-
+        
         return render_template('cajero_home.html', pedidos=pedidos)
-
     except Exception as e:
         print(f"Error en cajero_home: {e}")
         return render_template('cajero_home.html', pedidos=[])
@@ -791,9 +861,181 @@ def reporte_auditoria_pdf():
     buffer.seek(0)
     return send_file(buffer, as_attachment=True, download_name="reporte_auditoria.pdf", mimetype='application/pdf')
 
+@app.route('/camarero/marcar-servido', methods=['POST'])
+def marcar_pedido_servido():
+    if session.get('user_role') != 'camarero':
+        return jsonify({'status': 'error', 'message': 'No autorizado'})
+
+    data = request.get_json()
+    pedido_id = data.get('pedido_id')
+
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+        
+        # Verificar si el pedido existe y está en estado válido para ser servido
+        cursor.execute("SELECT estado FROM Pedidos WHERE id = ? AND estado = 'Preparando'", (pedido_id,))
+        pedido = cursor.fetchone()
+        
+        if not pedido:
+            return jsonify({'status': 'error', 'message': 'El pedido no existe o no está listo para ser servido'})
+        
+        # Actualizar el estado del pedido a 'Servido'
+        cursor.execute("UPDATE Pedidos SET estado = 'Servido' WHERE id = ?", (pedido_id,))
+        
+        # Registrar en auditoría
+        cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)',
+                      (session['username'], f'Marcó el pedido #{pedido_id} como servido'))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Pedido marcado como servido correctamente'
+        })
+    except Exception as e:
+        print(f"Error al marcar pedido como servido: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': 'Error al marcar el pedido como servido'
+        })
+
+@app.route('/cajero/cobrar', methods=['POST'])
+def cajero_cobrar():
+    if session.get('user_role') != 'cajero':
+        return jsonify({'status': 'error', 'message': 'No autorizado'})
+    data = request.get_json()
+    pedido_id = data.get('pedido_id')
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+
+        # Verificamos pedido y mesa
+        cursor.execute("""
+            SELECT p.id, m.numero_mesa
+            FROM Pedidos p
+            JOIN Mesas m ON m.id = p.mesa_id
+            WHERE p.id = ? AND p.estado = 'Servido'
+        """, (pedido_id,))
+        pedido_row = cursor.fetchone()
+        if not pedido_row:
+            return jsonify({'status': 'error', 'message': 'Pedido no encontrado o no está listo para cobrar'})
+        mesa = pedido_row.numero_mesa
+
+        # Obtener productos y calcular total
+        cursor.execute("""
+            SELECT pr.nombre, dp.cantidad, pr.precio * dp.cantidad AS subtotal
+            FROM Detalle_Pedidos dp
+            JOIN Productos pr ON pr.id = dp.producto_id
+            WHERE dp.pedido_id = ?
+        """, (pedido_id,))
+        productos_rows = cursor.fetchall()
+        productos = []
+        total = 0
+        for row in productos_rows:
+            productos.append({
+                'nombre': row.nombre,
+                'cantidad': row.cantidad,
+                'subtotal': float(row.subtotal)
+            })
+            total += float(row.subtotal)
+
+        # INSERT corregido con UsuarioSys
+        cursor.execute('INSERT INTO Pagos (pedido_id, monto, fecha_pago, UsuarioSys) VALUES (?, ?, GETDATE(), ?)', (pedido_id, total, session['username']))
+
+        # Actualiza el estado del pedido a "Archivado"
+        cursor.execute('UPDATE Pedidos SET estado = ? WHERE id = ?', ('Pagado', pedido_id))
+
+        # Auditoría
+        cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)',
+                       (session['username'], f'Cobró el pedido #{pedido_id} (Total Q{total})'))
+
+        conn.commit()
+
+        # Genera la factura PDF
+        factura_path = generar_factura_pdf(pedido_id, mesa, productos, total)
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Pedido cobrado y factura generada',
+            'recibo_path': factura_path.replace('\\', '/')
+        })
+
+    except Exception as e:
+        import traceback
+        print("ERROR AL COBRAR PEDIDO:")
+        traceback.print_exc()
+        return jsonify({'status': 'error', 'message': 'Error inesperado al cobrar el pedido'})
+
+    import os
+    from flask import send_from_directory
+
+    @app.route('/facturas/<filename>')
+    def facturas(filename):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        facturas_dir = os.path.join(base_dir, 'facturas')
+        file_path = os.path.join(facturas_dir, filename)
+        print("Buscando:", file_path)
+        if not os.path.exists(file_path):
+            print("NO EXISTE:", file_path)
+            abort(404)
+        else:
+            print("SÍ EXISTE:", file_path)
+        return send_from_directory(facturas_dir, filename)
+
+@app.route('/admin/reporte_pagos_excel')
+def reporte_pagos_excel():
+    if session.get('user_role') != 'adminRes':
+        return redirect(url_for('login'))
+
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+
+        cursor.execute("EXEC sp_ObtenerPagos")
+        rows = cursor.fetchall()
+
+        # Get column names from cursor description
+        columns = [column[0] for column in cursor.description]
+
+        # Convert data to pandas DataFrame
+        df = pd.DataFrame.from_records(rows, columns=columns)
+
+        # Create an Excel file in memory
+        excel_buffer = BytesIO()
+        with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='ReportePagos')
+        excel_buffer.seek(0)
+
+        # Auditoría
+        cursor.execute('INSERT INTO Auditoria (UsuarioSys, accion) VALUES (?, ?)',
+                       (session['username'], 'Generó un reporte de pagos en Excel'))
+
+        conn.commit()
+
+        return send_file(
+            excel_buffer,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=f"reporte_pagos_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        )
+
+    except Exception as e:
+        print(f"Error generating Excel report: {e}")
+        return jsonify({'status': 'error', 'message': str(e)})
+
+
 # Ejecutar la app
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
 
 
 
