@@ -258,3 +258,16 @@ BACKUP DATABASE successfully processed 706 pages in 0.052 seconds (105.994 MB/se
 Processed 720 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
 Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
 BACKUP DATABASE successfully processed 722 pages in 0.032 seconds (176.147 MB/sec).
+10 percent processed.
+20 percent processed.
+30 percent processed.
+40 percent processed.
+50 percent processed.
+60 percent processed.
+70 percent processed.
+80 percent processed.
+91 percent processed.
+100 percent processed.
+Processed 720 pages for database 'bdRestaurante', file 'bdRestaurante' on file 1.
+Processed 2 pages for database 'bdRestaurante', file 'bdRestaurante_log' on file 1.
+BACKUP DATABASE successfully processed 722 pages in 0.059 seconds (95.537 MB/sec).
