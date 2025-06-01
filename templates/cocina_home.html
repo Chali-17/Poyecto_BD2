@@ -80,6 +80,8 @@
                 <li>{{ producto.nombre }} (x{{ producto.cantidad }})</li>
                 {% endfor %}
             </ul>
+            <button style="background-color:orange; color:white;" onclick="cambiarEstado({{ pedido.pedido_id }}, 'Servido')">🔁 Desarchivar</button>
+
         </div>
         {% endfor %}
     {% else %}

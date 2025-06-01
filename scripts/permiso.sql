@@ -72,3 +72,6 @@ ALTER TABLE Pedidos DROP COLUMN fecha_pedido;
 
 ALTER TABLE Pedidos ADD fecha_pedido DATETIME DEFAULT GETDATE();
 
+--permisos para ver la grafica
+
+GRANT EXECUTE ON dbo.fn_VentasPorDia TO AdministradorRol;

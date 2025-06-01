@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Gráfica de Ventas por Día{% endblock %}
+
+{% block content %}
+<h1 style="text-align:center;">📈 Gráfica de Ventas por Día</h1>
+
+<div style="display:flex; justify-content:center; align-items:center; margin-top:20px;">
+    <img src="data:image/png;base64,{{ grafico }}" alt="Gráfica de ventas" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;">
+</div>
+
+<div style="text-align: center; margin-top: 30px;">
+    <a href="{{ url_for('descargar_grafica_pdf') }}" class="admin-btn" style="margin-right: 20px;">📥 Descargar PDF</a>
+    <a href="{{ url_for('adminRes_home') }}" class="admin-btn">⬅️ Volver al Panel</a>
+</div>
+{% endblock %}
