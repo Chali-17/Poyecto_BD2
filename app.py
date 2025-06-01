@@ -69,7 +69,7 @@ app.secret_key = '16'  # Clave secreta para sesiones
 # Configuración de conexión a SQL Server
 DB_CONFIG = {
     'Driver': '{SQL Server}',
-    'Server': 'CHALI\SQLEXPRESS',
+    'Server': 'AsusF15Eddy\SQLEXPRESS',
     'Database': 'bdRestaurante'
 }
 
@@ -494,6 +494,136 @@ def eliminar_mesa_ajax():
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'status': 'error', 'message': 'Error inesperado'})
+
+@app.route('/admin/grafica_ventas_dia')
+def grafica_ventas_dia():
+    import matplotlib
+    matplotlib.use('Agg')  # Use a non-GUI backend
+    import matplotlib.pyplot as plt
+
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+
+        # Obtener fechas únicas desde la tabla de pagos
+        cursor.execute("SELECT DISTINCT CAST(fecha_pago AS DATE) FROM Pagos ORDER BY CAST(fecha_pago AS DATE)")
+        fechas = [row[0] for row in cursor.fetchall()]
+
+        # Para cada fecha, llamar a la función escalar
+        ventas = []
+        for fecha in fechas:
+            cursor.execute("SELECT dbo.fn_VentasPorDia(?)", (fecha,))
+            total = cursor.fetchone()[0]
+            ventas.append({'fecha': fecha, 'total': float(total)})
+
+        cursor.close()
+        conn.close()
+
+        # Graficar con matplotlib
+        import matplotlib.pyplot as plt
+        import matplotlib.ticker as ticker
+        import io, base64
+        import pandas as pd
+
+        df = pd.DataFrame(ventas)
+
+        plt.style.use('ggplot')
+        fig, ax = plt.subplots(figsize=(12, 6))
+        ax.plot(df['fecha'], df['total'], marker='o', color='#007BFF', linewidth=2,
+                markerfacecolor='white', markeredgecolor='black', markersize=8)
+
+        ax.set_title('Ventas por Día (usando función escalar)', fontsize=16)
+        ax.set_xlabel('Fecha')
+        ax.set_ylabel('Total (Q)')
+        ax.tick_params(axis='x', rotation=45)
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'Q{x:,.2f}'))
+
+        for i, row in df.iterrows():
+            ax.annotate(f"Q{row['total']:.2f}", xy=(row['fecha'], row['total']),
+                        xytext=(0, 15), textcoords='offset points',
+                        ha='center', fontsize=9, color='black')
+
+        plt.tight_layout()
+
+        img = io.BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        grafico_base64 = base64.b64encode(img.read()).decode('utf-8')
+        plt.close()
+
+        return render_template('grafica_ventas.html', grafico=grafico_base64)
+
+    except Exception as e:
+        return f"Error generando la gráfica: {e}"
+
+
+@app.route('/admin/descargar_grafica_pdf')
+def descargar_grafica_pdf():
+    try:
+        conn = get_db_connection(session['username'], session['password'])
+        cursor = conn.cursor()
+
+        # Obtener fechas únicas desde la tabla Pagos
+        cursor.execute("SELECT DISTINCT CAST(fecha_pago AS DATE) FROM Pagos ORDER BY CAST(fecha_pago AS DATE)")
+        fechas = [row[0] for row in cursor.fetchall()]
+
+        # Consultar la función escalar para cada fecha
+        ventas = []
+        for fecha in fechas:
+            cursor.execute("SELECT dbo.fn_VentasPorDia(?)", (fecha,))
+            total = cursor.fetchone()[0]
+            ventas.append({'fecha': fecha, 'total': float(total)})
+
+        cursor.close()
+        conn.close()
+
+        # Generar gráfica con matplotlib
+        import matplotlib.pyplot as plt
+        import matplotlib.ticker as ticker
+        import io
+        from reportlab.lib.pagesizes import letter
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.utils import ImageReader
+
+        import pandas as pd
+        df = pd.DataFrame(ventas)
+
+        plt.style.use('ggplot')
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(df['fecha'], df['total'], marker='o', color='#007BFF', linewidth=2,
+                markerfacecolor='white', markeredgecolor='black', markersize=8)
+
+        ax.set_title('Ventas por Día', fontsize=16)
+        ax.set_xlabel('Fecha')
+        ax.set_ylabel('Total (Q)')
+        ax.tick_params(axis='x', rotation=45)
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'Q{x:,.2f}'))
+
+        for i, row in df.iterrows():
+            ax.annotate(f"Q{row['total']:.2f}", xy=(row['fecha'], row['total']),
+                        xytext=(0, 15), textcoords='offset points',
+                        ha='center', fontsize=9, color='black')
+
+        plt.tight_layout()
+
+        img_buffer = io.BytesIO()
+        plt.savefig(img_buffer, format='png')
+        img_buffer.seek(0)
+        plt.close()
+
+        # Crear PDF con la imagen embebida
+        pdf_buffer = io.BytesIO()
+        c = canvas.Canvas(pdf_buffer, pagesize=letter)
+        c.drawImage(ImageReader(img_buffer), 50, 250, width=500, height=300)
+        c.setFont("Helvetica", 12)
+        c.drawString(200, 200, "Gráfica de Ventas por Día")
+        c.save()
+        pdf_buffer.seek(0)
+
+        return send_file(pdf_buffer, as_attachment=True, download_name='grafica_ventas.pdf', mimetype='application/pdf')
+
+    except Exception as e:
+        return f"Error generando PDF: {e}"
 
 
 
